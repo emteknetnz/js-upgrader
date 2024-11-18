@@ -75,7 +75,7 @@ foreach ($vendors as $vendor) {
                 $npmMajorVersion = getMajorVersion($npmVersion);
                 if ($packageJsonMajorVersion != $npmMajorVersion) {
                     if ($node == 'dependencies') {
-                        $depsMajorUpdat[$key][$name] = $npmVersion;
+                        $depsMajorUpdate[$key][$name] = $npmVersion;
                     } else {
                         $devDepsMajorUpdate[$key][$name] = $npmVersion;
                     }
@@ -95,29 +95,53 @@ foreach ($vendors as $vendor) {
 
 $needsMinor = [];
 $needsMajor = [];
+$majorDepNames = [];
+$majorDevDepNames = [];
+$majorDepVersions = [];
+$majorDevDepVersions = [];
 
 ob_start();
 foreach ($keys as $key) {
     echo "\n\n# $key\n";
-    echo "\nMinor update required for $key\n";
-    foreach ($depsMinorUpdate[$key] as $name => $version) {
-        echo "  $name => $version\n";
-        $needsMinor[$key] = true;
-    }
-    // echo "\nMinor update required for $key (dev)\n";
-    foreach ($devDepsMinorUpdate[$key] as $name => $version) {
-        echo "  $name => $version\n";
-        $needsMinor[$key] = true;
-    }
+    //echo "\nMinor update required for $key\n";
+    // foreach ($depsMinorUpdate[$key] as $name => $version) {
+    //     echo "  $name => $version\n";
+    //     $needsMinor[$key] = true;
+    // }
+    //echo "\nMinor update required for $key (dev)\n";
+    // foreach ($devDepsMinorUpdate[$key] as $name => $version) {
+    //     echo "  $name => $version\n";
+    //     $needsMinor[$key] = true;
+    // }
     echo "\nMajor update required for $key\n";
     foreach ($depsMajorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $majorDepNames[$name][] = $key;
+        $majorDepVersions[$name] = $version;
         $needsMajor[$key] = true;
     }
-    // echo "\nMajor update required for $key (dev)\n";
+    echo "\nMajor update required for $key (dev)\n";
     foreach ($devDepsMajorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $majorDevDepNames[$name][] = $key;
+        $majorDevDepVersions[$name] = $version;
         $needsMajor[$key] = true;
+    }
+}
+echo "\n\n# Major deps\n";
+foreach ($majorDepNames as $name => $keys) {
+    $version = $majorDepVersions[$name];
+    echo "\n$name => $version\n";
+    foreach ($keys as $key) {
+        echo "  $key\n";
+    }
+}
+echo "\n\n# Major dev deps\n";
+foreach ($majorDevDepNames as $name => $keys) {
+    $version = $majorDevDepVersions[$name];
+    echo "\n$name => $version\n";
+    foreach ($keys as $key) {
+        echo "  $key\n";
     }
 }
 echo "\n\n# Has package.json\n";
