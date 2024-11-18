@@ -20,6 +20,11 @@ $depsMajorUpdate = [];
 $devDepsMinorUpdate = [];
 $devDepsMajorUpdate = [];
 
+$dir = __DIR__;
+if (!file_exists("$dir/.cache")) {
+    mkdir("$dir/.cache");
+}
+
 $npmjs = [];
 foreach ($vendors as $vendor) {
     $path = __DIR__ . '/../../' . $vendor;
@@ -48,9 +53,16 @@ foreach ($vendors as $vendor) {
                 $packageJsonVersion = ltrim($version, '^');
                 $packageJsonMajorVersion = getMajorVersion($packageJsonVersion);
                 if (!isset($npmjs[$name])) {
-                    $remote = "https://registry.npmjs.org/$name";
-                    echo "Fetching from $remote\n";
-                    $c = file_get_contents($remote);
+                    $ename = str_replace(['@','/'], ['_AT_','_FS_'], $name);
+                    if (!file_exists("$dir/.cache/$ename")) {
+                        $remote = "https://registry.npmjs.org/$name";
+                        echo "Fetching from $remote\n";
+                        $c = file_get_contents($remote);
+                        file_put_contents("$dir/.cache/$ename", $c);
+                    } else {
+                        echo "Reading from .cache/$ename\n";
+                        $c = file_get_contents("$dir/.cache/$ename");
+                    }
                     $npmjs[$name] = json_decode($c, true)['dist-tags']['latest'];
                 }
                 $npmVersion = $npmjs[$name];
@@ -86,7 +98,7 @@ foreach ($keys as $key) {
         echo "  $name => $version\n";
         $needsMinor[$key] = true;
     }
-    echo "\nMinor update required for $key (dev)\n";
+    // echo "\nMinor update required for $key (dev)\n";
     foreach ($devDepsMinorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
         $needsMinor[$key] = true;
@@ -96,7 +108,7 @@ foreach ($keys as $key) {
         echo "  $name => $version\n";
         $needsMajor[$key] = true;
     }
-    echo "\nMajor update required for $key (dev)\n";
+    // echo "\nMajor update required for $key (dev)\n";
     foreach ($devDepsMajorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
         $needsMajor[$key] = true;
@@ -114,3 +126,8 @@ foreach (array_keys($needsMajor) as $key) {
 $output = ob_get_clean();
 file_put_contents('output.txt', $output);
 echo "Wrote to output.txt\n";
+
+// Update package.json files
+if (count($argv) >= 2 && $argv[1] == 'update') {
+
+}
