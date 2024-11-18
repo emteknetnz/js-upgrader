@@ -19,6 +19,7 @@ $depsMinorUpdate = [];
 $depsMajorUpdate = [];
 $devDepsMinorUpdate = [];
 $devDepsMajorUpdate = [];
+$existingDep = [];
 
 $dir = __DIR__;
 if (!file_exists("$dir/.cache")) {
@@ -51,6 +52,7 @@ foreach ($vendors as $vendor) {
             }
             foreach ($json[$node] as $name => $version) {
                 $packageJsonVersion = ltrim($version, '^');
+                $existingDep[$key][$name] = $packageJsonVersion;
                 $packageJsonMajorVersion = getMajorVersion($packageJsonVersion);
                 if (!isset($npmjs[$name])) {
                     $ename = str_replace(['@','/'], ['_AT_','_FS_'], $name);
@@ -127,7 +129,17 @@ $output = ob_get_clean();
 file_put_contents('output.txt', $output);
 echo "Wrote to output.txt\n";
 
-// Update package.json files
+// Update package.json files minor only
 if (count($argv) >= 2 && $argv[1] == 'update') {
-
+    foreach ($keys as $key) {
+        $file = __DIR__ . '/../../' . $key . '/package.json';
+        $c = file_get_contents($file);
+        $deps = array_merge($depsMinorUpdate[$key], $devDepsMinorUpdate[$key]);
+        foreach ($deps as $name => $version) {
+            $existing = $existingDep[$key][$name];
+            $c = str_replace("\"$name\": \"^$existing\"", "\"$name\": \"^$version\"", $c);
+        }
+        file_put_contents($file, $c);
+        echo "Updated $file\n";
+    }
 }
