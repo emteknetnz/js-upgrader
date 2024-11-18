@@ -134,6 +134,12 @@ file_put_contents('output.txt', $output);
 echo "Wrote to output.txt\n";
 
 // Update package.json files minor only
+// Note: don't do this for minor upgrades it seems to mess up the the ability for yarn to work
+// out deps across repos. It works for admin, however then doing the same in elemental
+// it won't be able to build. However regular yarn upgrade and yarn build works fine, though
+// it won't update the package.json files, only yarn.lock
+// This part of the script may still be useful for major updates
+// If you do use this, remember to run yarn install, yarn upgrade and yarn build after
 if (count($argv) >= 2 && $argv[1] == 'update') {
     foreach ($keys as $key) {
         $file = __DIR__ . '/../../' . $key . '/package.json';
