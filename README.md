@@ -14,14 +14,22 @@ cd js-upgrader
 
 ## Usage
 
-Generate a report only output.txt
+Generate a report to output.txt
 
 ```bash
 php run.php
 ```
 
-Generate a report and update package.json files
+Generate a report to output.txt and do minor updates in package.json files
 
 ```bash
 php run.php update
+```
+
+In every updated directories, starting with `silverstripe/admin` you'll need to then manually run
+
+```bash
+yarn install
+yarn upgrade
+yarn build
 ```
