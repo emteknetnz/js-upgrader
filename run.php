@@ -75,26 +75,42 @@ foreach ($vendors as $vendor) {
     }
 }
 
+$needsMinor = [];
+$needsMajor = [];
+
 ob_start();
 foreach ($keys as $key) {
     echo "\n\n# $key\n";
     echo "\nMinor update required for $key\n";
     foreach ($depsMinorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $needsMinor[$key] = true;
     }
     echo "\nMinor update required for $key (dev)\n";
     foreach ($devDepsMinorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $needsMinor[$key] = true;
     }
     echo "\nMajor update required for $key\n";
     foreach ($depsMajorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $needsMajor[$key] = true;
     }
     echo "\nMajor update required for $key (dev)\n";
     foreach ($devDepsMajorUpdate[$key] as $name => $version) {
         echo "  $name => $version\n";
+        $needsMajor[$key] = true;
     }
 }
+echo "\n\n# Needs minor\n";
+foreach (array_keys($needsMinor) as $key) {
+    echo "  $key\n";
+}
+echo "\n\n# Needs major\n";
+foreach (array_keys($needsMajor) as $key) {
+    echo "  $key\n";
+}
+
 $output = ob_get_clean();
 file_put_contents('output.txt', $output);
 echo "Wrote to output.txt\n";
