@@ -11,7 +11,11 @@ $vendors = [
 
 function getMajorVersion($version)
 {
-    return explode('.', $version)[0];
+    $a = explode('.', $version);
+    if ($a[0] == '0') {
+        return $a[0] . '.' . $a[1];
+    }
+    return $a[0];
 }
 
 $keys = [];
