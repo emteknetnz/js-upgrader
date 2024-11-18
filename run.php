@@ -120,6 +120,10 @@ foreach ($keys as $key) {
         $needsMajor[$key] = true;
     }
 }
+echo "\n\n# Has package.json\n";
+foreach ($keys as $key) {
+    echo "  $key\n";
+}
 echo "\n\n# Needs minor\n";
 foreach (array_keys($needsMinor) as $key) {
     echo "  $key\n";
@@ -134,7 +138,7 @@ file_put_contents('output.txt', $output);
 echo "Wrote to output.txt\n";
 
 // Update package.json files minor only
-// Note: don't do this for minor upgrades it seems to mess up the the ability for yarn to work
+// Note: don't do this for minor upgrades it will mess up the the ability for yarn to work
 // out deps across repos. It works for admin, however then doing the same in elemental
 // it won't be able to build. However regular yarn upgrade and yarn build works fine, though
 // it won't update the package.json files, only yarn.lock
@@ -145,9 +149,17 @@ if (count($argv) >= 2 && $argv[1] == 'update') {
         $file = __DIR__ . '/../../' . $key . '/package.json';
         $c = file_get_contents($file);
         $deps = array_merge($depsMinorUpdate[$key], $devDepsMinorUpdate[$key]);
+        $changed = false;
         foreach ($deps as $name => $version) {
             $existing = $existingDep[$key][$name];
+            if ($existing == $version) {
+                continue;
+            }
             $c = str_replace("\"$name\": \"^$existing\"", "\"$name\": \"^$version\"", $c);
+            $changed = true;
+        }
+        if (!$changed) {
+            continue;
         }
         file_put_contents($file, $c);
         echo "Updated $file\n";
