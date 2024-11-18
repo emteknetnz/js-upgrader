@@ -57,16 +57,16 @@ foreach ($vendors as $vendor) {
                 $npmMajorVersion = getMajorVersion($npmVersion);
                 if ($packageJsonMajorVersion != $npmMajorVersion) {
                     if ($node == 'dependencies') {
-                        $depsMajorUpdate[$name] = $npmVersion;
+                        $depsMajorUpdat[$key][$name] = $npmVersion;
                     } else {
-                        $devDepsMajorUpdate[$name] = $npmVersion;
+                        $devDepsMajorUpdate[$key][$name] = $npmVersion;
                     }
                 } else {
                     if ($packageJsonVersion != $npmVersion) {
                         if ($node == 'dependencies') {
-                            $depsMinorUpdate[$name] = $npmVersion;
+                            $depsMinorUpdate[$key][$name] = $npmVersion;
                         } else {
-                            $devDepsMinorUpdate[$name] = $npmVersion;
+                            $devDepsMinorUpdate[$key][$name] = $npmVersion;
                         }
                     }
                 }
@@ -77,34 +77,22 @@ foreach ($vendors as $vendor) {
 
 ob_start();
 foreach ($keys as $key) {
-    echo "\n\n$key\n";
-    $deps = $depsMajorUpdate[$key];
-    if (count($deps)) {
-        echo "Major update required for $key\n";
-        foreach ($deps as $name => $version) {
-            echo "  $name: $version\n";
-        }
+    echo "\n\n# $key\n";
+    echo "\nMinor update required for $key\n";
+    foreach ($depsMinorUpdate[$key] as $name => $version) {
+        echo "  $name => $version\n";
     }
-    $deps = $depsMinorUpdate[$key];
-    if (count($deps)) {
-        echo "Minor update required for $key\n";
-        foreach ($deps as $name => $version) {
-            echo "  $name: $version\n";
-        }
+    echo "\nMinor update required for $key (dev)\n";
+    foreach ($devDepsMinorUpdate[$key] as $name => $version) {
+        echo "  $name => $version\n";
     }
-    $deps = $devDepsMajorUpdate[$key];
-    if (count($deps)) {
-        echo "Major update required for $key (dev)\n";
-        foreach ($deps as $name => $version) {
-            echo "  $name: $version\n";
-        }
+    echo "\nMajor update required for $key\n";
+    foreach ($depsMajorUpdate[$key] as $name => $version) {
+        echo "  $name => $version\n";
     }
-    $deps = $devDepsMinorUpdate[$key];
-    if (count($deps)) {
-        echo "Minor update required for $key (dev)\n";
-        foreach ($deps as $name => $version) {
-            echo "  $name: $version\n";
-        }
+    echo "\nMajor update required for $key (dev)\n";
+    foreach ($devDepsMajorUpdate[$key] as $name => $version) {
+        echo "  $name => $version\n";
     }
 }
 $output = ob_get_clean();
