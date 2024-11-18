@@ -109,4 +109,4 @@ foreach ($keys as $key) {
 }
 $output = ob_get_clean();
 file_put_contents('output.txt', $output);
-echo "Wrote to output.txt";
+echo "Wrote to output.txt\n";
